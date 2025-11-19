@@ -1,0 +1,769 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>متجر الالكترونيات | الصفحة الرئيسية</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+    <style>
+      /* --- عام --- */
+      :root {
+        --primary: #007bff;
+        --accent: #005a82;
+        --warning: #ffc107;
+        --success: #28a745;
+        --danger: #dc3545;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background-color: #f1f3f5;
+        color: #222;
+      }
+
+      /* --- Navbar --- */
+      .navbar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        background-color: var(--primary);
+        padding: 10px 16px;
+        color: white;
+      }
+      .logo a {
+        font-weight: bold;
+        font-size: 22px;
+        color: white;
+        text-decoration: none;
+      }
+      .nav-links {
+        margin-right: auto;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+      }
+      .user-area {
+        margin-left: 12px;
+        color: white;
+      }
+
+      /* --- Category filter (center) --- */
+      .category-nav {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-grow: 1;
+      }
+      .category-nav .btn {
+        padding: 6px 12px;
+        background: var(--accent);
+        color: white;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-block;
+      }
+      .category-nav .btn.active {
+        background-color: var(--warning) !important;
+        color: #333 !important;
+      }
+
+      /* --- Layout --- */
+      .main-content {
+        display: flex;
+        gap: 20px;
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 0 16px;
+        align-items: flex-start;
+      }
+      .sidebar {
+        width: 280px;
+        padding: 18px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        height: fit-content;
+      }
+      .product-list-section {
+        flex-grow: 1;
+      }
+
+      /* --- Product grid --- */
+      .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 18px;
+      }
+      .product-card {
+        background: white;
+        border: 1px solid #e3e6ea;
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+        position: relative;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+      }
+      .product-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      }
+      .product-card img {
+        width: 90%;
+        height: 170px;
+        object-fit: contain;
+        border-radius: 6px;
+        margin-bottom: 8px;
+      }
+
+      h2.section-title {
+        margin: 0 0 14px;
+        color: #333;
+      }
+
+      .price {
+        color: var(--danger);
+        font-weight: bold;
+        font-size: 18px;
+        display: block;
+        margin: 6px 0;
+      }
+
+      .btn-inline {
+        display: inline-block;
+        padding: 8px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        font-size: 14px;
+      }
+
+      .btn-detail {
+        background: var(--primary);
+        color: #fff;
+        margin-right: 8px;
+      }
+      .btn-add {
+        background: var(--warning);
+        color: #333;
+      }
+
+      /* --- specs table --- */
+      .specs-table {
+        display: none;
+        width: 100%;
+        margin-top: 10px;
+        border-collapse: collapse;
+      }
+      .specs-table th,
+      .specs-table td {
+        padding: 8px;
+        border: 1px solid #eee;
+        text-align: right;
+        font-size: 13px;
+      }
+      .specs-table th {
+        background: #f8f9fa;
+        width: 40%;
+      }
+
+      /* --- Mini cart --- */
+      .cart-icon-container {
+        position: relative;
+        margin-left: 10px;
+      }
+      .cart-icon {
+        font-size: 22px;
+        cursor: pointer;
+        color: white;
+        padding: 6px 10px;
+        background: var(--success);
+        border-radius: 6px;
+        display: inline-block;
+      }
+      .cart-count {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: var(--danger);
+        color: #fff;
+        border-radius: 50%;
+        padding: 2px 7px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+      .mini-cart {
+        position: absolute;
+        top: 54px;
+        left: 0;
+        width: 340px;
+        background: white;
+        border: 1px solid #e6e6e6;
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+        border-radius: 8px;
+        z-index: 1200;
+        padding: 12px;
+        display: none;
+        text-align: right;
+      }
+      .mini-cart.active {
+        display: block;
+      }
+      .cart-items {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 260px;
+        overflow: auto;
+      }
+      .cart-item {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px dotted #eee;
+      }
+      .cart-item img {
+        width: 54px;
+        height: 54px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-left: 6px;
+      }
+      .cart-item-info {
+        flex: 1;
+        text-align: right;
+        font-size: 13px;
+      }
+      .cart-item-controls {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .small-btn {
+        padding: 4px 7px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+      }
+
+      .cart-total {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 2px solid #eee;
+        font-weight: bold;
+        font-size: 15px;
+        text-align: left;
+      }
+
+      /* --- Footer --- */
+      footer.footer {
+        text-align: center;
+        padding: 18px;
+        background: #343a40;
+        color: white;
+        margin-top: 30px;
+      }
+
+      /* --- Responsive tweaks --- */
+      @media (max-width: 900px) {
+        .main-content {
+          flex-direction: column;
+          padding: 0 12px;
+        }
+        .sidebar {
+          width: 100%;
+          order: 2;
+        }
+        .category-nav {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <header class="navbar">
+      <div class="logo"><a href="{% url 'home' %}">متجر الالكترونيات</a></div>
+
+      <!-- Category filter (وسط) -->
+      <div class="category-nav" role="navigation" aria-label="فلترة الفئات">
+        <a
+          href="{% url 'home' %}?category=Laptop"
+          class="btn {% if selected_category == 'Laptop' %}active{% endif %}"
+          >لابتوبات</a
+        >
+        <a
+          href="{% url 'home' %}?category=Mobile"
+          class="btn {% if selected_category == 'Mobile' %}active{% endif %}"
+          >موبايل</a
+        >
+        <a
+          href="{% url 'home' %}?category=Accessories"
+          class="btn {% if selected_category == 'Accessories' %}active{% endif %}"
+          >اكسسوارات</a
+        >
+        <a
+          href="{% url 'home' %}"
+          class="btn {% if selected_category == 'All' or not selected_category %}active{% endif %}"
+          >الكل</a
+        >
+      </div>
+
+      <!-- Cart icon -->
+      <div class="cart-icon-container" style="margin-left: 12px">
+        <div
+          class="cart-icon"
+          onclick="toggleCart()"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          🛒
+          <span id="cart-item-count" class="cart-count">0</span>
+        </div>
+
+        <div
+          id="mini-cart"
+          class="mini-cart"
+          aria-label="السلة المصغرة"
+          role="dialog"
+        >
+          <h4 style="margin: 0 0 8px 0; text-align: right">السلة</h4>
+          <ul id="cart-items-list" class="cart-items"></ul>
+          <div class="cart-total" id="cart-total-display">الإجمالي: 0.00$</div>
+          <!-- زر فتح الفورم -->
+          <button
+            id="checkout-open-btn"
+            style="
+              display: block;
+              width: 100%;
+              margin-top: 10px;
+              padding: 8px;
+              background: var(--success);
+              color: white;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+            "
+          >
+            إتمام الطلب
+          </button>
+        </div>
+      </div>
+
+      <!-- Right nav links -->
+      <nav class="nav-links" aria-label="روابط">
+        <a href="{% url 'home' %}">الرئيسية</a>
+        <a href="{% url 'about' %}">عن المتجر</a>
+      </nav>
+
+      <!-- User area -->
+      <nav class="nav-links">
+        {% if user.is_authenticated %}
+        <span>{{ user.first_name }}</span>
+        <a
+          href="{% url 'logout_user' %}"
+          style="color: white; margin-right: 8px"
+          >تسجيل الخروج</a
+        >
+        {% else %}
+        <a href="{% url 'login' %}" style="color: white; margin-right: 8px"
+          >تسجيل الدخول</a
+        >
+        {% endif %}
+      </nav>
+    </header>
+
+    <!-- MAIN -->
+    <div class="main-content">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" aria-labelledby="about-shop">
+        <h3 id="about-shop">حول متجر الالكترونيات</h3>
+        <p>
+          نحن متجرك الموثوق للحصول على أفضل أجهزة اللابتوب والهواتف
+          والإكسسوارات.
+        </p>
+
+        <h3 style="margin-top: 18px">لماذا تشتري من عندنا؟ 🥇</h3>
+        <ul>
+          <li>ضمان لمدة سنتين على جميع الأجهزة.</li>
+          <li>أسعار تنافسية وعروض حصرية.</li>
+          <li>خدمة عملاء ودعم فني على مدار الساعة.</li>
+          <li>شحن مجاني وسريع.</li>
+        </ul>
+      </aside>
+
+      <!-- PRODUCTS -->
+      <section class="product-list-section" aria-labelledby="products-title">
+        <h2 style="margin-bottom:20px;color:#333;">
+            جميع المنتجات المتوفرة ({{ product_list|length }} منتجات)
+        </h2>
+
+        <div class="product-grid">
+          {% with items=product_list%} {% for x in items %}
+          <div class="product-card" data-name="{{ x.name|escapejs }}">
+            <img src="{{ x.image.url }}" alt="{{ x.name }}" />
+            <h3 style="margin: 6px 0 4px">{{ x.name }}</h3>
+            <p style="min-height: 36px; color: #6c757d">{{ x.content }}</p>
+            <span class="price">{{ x.price }}$</span>
+
+            <table class="specs-table" aria-hidden="true">
+              <tbody>
+                <tr>
+                  <th>الفئة</th>
+                  <td>{{ x.category|default:"-" }}</td>
+                </tr>
+                <tr>
+                  <th>الوصف</th>
+                  <td>{{ x.content|default:"-" }}</td>
+                </tr>
+                <tr>
+                  <th>السعر</th>
+                  <td>{{ x.price }}$</td>
+                </tr>
+                {% if x.specs %} {% for k,v in x.specs.items %}
+                <tr>
+                  <th>{{ k }}</th>
+                  <td>{{ v }}</td>
+                </tr>
+                {% endfor %} {% endif %}
+              </tbody>
+            </table>
+
+            <div
+              style="
+                margin-top: 10px;
+                display: flex;
+                justify-content: center;
+                gap: 8px;
+              "
+            >
+              <button
+                class="btn-inline btn-detail"
+                onclick="toggleDetails(this)"
+                aria-expanded="false"
+              >
+                عرض التفاصيل
+              </button>
+
+              <a
+                href="#"
+                class="btn-inline btn-add"
+                onclick="addToCart(event, '{{ x.name|escapejs }}', '{{ x.price }}', '{{ x.image.url }}')"
+                >أضف للسلة</a
+              >
+            </div>
+          </div>
+          {% endfor %} {% endwith %}
+        </div>
+      </section>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <p>&copy; 2024 متجر الالكترونيات. جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <!-- ==== سكربت واحد ومنظم للسلة و checkout و toggle details ==== -->
+    <script>
+      // ====== متغير السلة محليًا (واحد فقط) ======
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+      // حفظ السلة
+      function saveCart() {
+        localStorage.setItem("cart", JSON.stringify(cart));
+      }
+
+      // الحصول على قيمة الكوكي (CSRFTOKEN)
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+              cookieValue = decodeURIComponent(
+                cookie.substring(name.length + 1)
+              );
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+      const csrftoken = getCookie("csrftoken");
+
+      // تحديث عرض السلة المصغرة
+      function updateCartDisplay() {
+        const list = document.getElementById("cart-items-list");
+        const countDisplay = document.getElementById("cart-item-count");
+        const totalDisplay = document.getElementById("cart-total-display");
+        list.innerHTML = "";
+
+        if (!cart || cart.length === 0) {
+          list.innerHTML =
+            '<li class="empty-cart-message">السلة فارغة حالياً.</li>';
+          countDisplay.textContent = 0;
+          totalDisplay.textContent = "الإجمالي: 0.00$";
+          return;
+        }
+
+        let total = 0;
+        cart.forEach((item, idx) => {
+          const li = document.createElement("li");
+          li.className = "cart-item";
+
+          li.innerHTML = `
+                    <img src="${item.img}" alt="${item.name}">
+                    <div class="cart-item-info">
+                        <strong>${item.name}</strong>
+                        <div style="margin-top:6px; font-size:13px; color:#6c757d;">
+                            ${item.price.toFixed(2)}$ × <span class="qty">${
+            item.quantity
+          }</span>
+                        </div>
+                        <div style="margin-top:6px;">
+                            <button class="small-btn" onclick="changeQty(${idx}, -1)" title="نقص">-</button>
+                            <button class="small-btn" onclick="changeQty(${idx}, 1)" title="زيادة">+</button>
+                        </div>
+                    </div>
+                    <div class="cart-item-controls" style="margin-left:8px;">
+                        <button class="small-btn" style="background:#dc3545; color:white;" onclick="removeFromCart(${idx})">حذف</button>
+                    </div>
+                `;
+
+          list.appendChild(li);
+          total += item.price * item.quantity;
+        });
+
+        countDisplay.textContent = cart.reduce((s, i) => s + i.quantity, 0);
+        totalDisplay.textContent = `الإجمالي: ${total.toFixed(2)}$`;
+      }
+
+      // إضافة إلى السلة (يزيد الكمية إذا المنتج موجود)
+      function addToCart(event, name, price, img) {
+        event && event.preventDefault();
+
+        price = parseFloat(price) || 0;
+        // البحث عن المنتج بنفس الاسم والسعر
+        const existing = cart.find((i) => i.name === name && i.price === price);
+        if (existing) {
+          existing.quantity = (existing.quantity || 1) + 1;
+        } else {
+          cart.push({ name, price, img, quantity: 1 });
+        }
+        saveCart();
+        updateCartDisplay();
+
+        // إظهار الميني كارت مؤقتًا
+        const mini = document.getElementById("mini-cart");
+        mini.classList.add("active");
+        clearTimeout(mini.timer);
+        mini.timer = setTimeout(() => mini.classList.remove("active"), 3000);
+      }
+
+      // تغيير كمية
+      function changeQty(index, delta) {
+        if (!cart[index]) return;
+        cart[index].quantity = Math.max(1, (cart[index].quantity || 1) + delta);
+        saveCart();
+        updateCartDisplay();
+      }
+
+      // إزالة من السلة
+      function removeFromCart(index) {
+        if (index < 0 || index >= cart.length) return;
+        cart.splice(index, 1);
+        saveCart();
+        updateCartDisplay();
+      }
+
+      // تبديل إظهار الميني كارت
+      function toggleCart() {
+        const mini = document.getElementById("mini-cart");
+        mini.classList.toggle("active");
+      }
+
+      // فتح نموذج الدفع داخل الميني كارت
+      function openCheckoutForm() {
+        const mini = document.getElementById("mini-cart");
+
+        // إذا لا توجد سلة أو فارغة
+        if (!cart || cart.length === 0) {
+          alert("السلة فارغة");
+          return;
+        }
+
+        // إذا كان الفورم موجودًا بالفعل فلا نعيده
+        if (document.getElementById("checkout-form")) return;
+
+        const formHtml = `
+                <div id="checkout-form" style="margin-top:10px; text-align:right;">
+                    <h5 style="margin:0 0 8px;">إتمام الطلب</h5>
+                    <input id="cust-name" placeholder="الاسم" style="width:100%; padding:8px; margin-bottom:6px;">
+                    <input id="cust-email" placeholder="البريد الإلكتروني (اختياري)" style="width:100%; padding:8px; margin-bottom:6px;">
+                    <input id="cust-phone" placeholder="الهاتف" style="width:100%; padding:8px; margin-bottom:6px;">
+                    <textarea id="cust-address" placeholder="العنوان" style="width:100%; padding:8px; margin-bottom:6px;"></textarea>
+
+
+                    <button id="confirm-order-btn" style="width:100%; padding:10px; background:${
+                      getComputedStyle(
+                        document.documentElement
+                      ).getPropertyValue("--primary") || "#007bff"
+                    }; color:white; border:none; border-radius:6px; cursor:pointer;">
+                        تأكيد الطلب
+                    </button>
+
+                    <div id="checkout-msg" style="margin-top:8px;"></div>
+                </div>
+            `;
+        mini.insertAdjacentHTML("beforeend", formHtml);
+        document
+          .getElementById("confirm-order-btn")
+          .addEventListener("click", doCheckout);
+      }
+
+      // تنفيذ الدفع: إرسال إلى endpoint
+      async function doCheckout(e) {
+        e && e.preventDefault();
+
+        if (!cart || cart.length === 0) {
+          alert("السلة فارغة");
+          return;
+        }
+
+        const name = document.getElementById("cust-name").value.trim();
+        const email = document.getElementById("cust-email").value.trim();
+        const phone = document.getElementById("cust-phone").value.trim();
+        const address = document.getElementById("cust-address").value.trim();
+
+        if (!name || !address) {
+          alert("الرجاء إدخال الاسم والعنوان على الأقل.");
+          return;
+        }
+
+        const items = cart.map((i) => ({
+          product_name: i.name,
+          price: parseFloat(i.price),
+          quantity: i.quantity || 1,
+        }));
+
+        const payload = {
+          customer_name: name,
+          customer_email: email,
+          customer_phone: phone,
+          customer_address: address,
+          items: items,
+        };
+
+        try {
+          const resp = await fetch("/api/checkout/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrftoken,
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const checkoutMsgEl = document.getElementById("checkout-msg");
+
+          if (resp.ok) {
+            const data = await resp.json();
+            checkoutMsgEl.innerHTML = `<div style="padding:8px; background:#d4edda; color:#155724; border-radius:6px;">
+                            ${data.detail || "تم إنشاء الطلب"}${
+              data.order_id ? " — رقم الطلب: " + data.order_id : ""
+            }
+                        </div>`;
+
+            // تفريغ السلة
+            cart = [];
+            saveCart();
+            updateCartDisplay();
+
+            // ازالة الفورم بعد ثانيتين
+            setTimeout(() => {
+              const formEl = document.getElementById("checkout-form");
+              if (formEl) formEl.remove();
+            }, 2000);
+          } else {
+            const err = await resp.json().catch(() => ({}));
+            const msg = err.detail || JSON.stringify(err);
+            checkoutMsgEl.innerHTML = `<div style="padding:8px; background:#f8d7da; color:#721c24; border-radius:6px;">
+                            حدث خطأ أثناء إرسال الطلب: ${msg}
+                        </div>`;
+          }
+        } catch (error) {
+          console.error(error);
+          const checkoutMsgEl = document.getElementById("checkout-msg");
+          if (checkoutMsgEl) {
+            checkoutMsgEl.innerHTML = `<div style="padding:8px; background:#f8d7da; color:#721c24; border-radius:6px;">
+                            خطأ في الاتصال بالخادم.
+                        </div>`;
+          }
+        }
+      }
+
+      // Toggle تفاصيل المنتج (button handler)
+      function toggleDetails(button) {
+        // البحث عن الجدول داخل نفس البطاقة
+        const card = button.closest(".product-card");
+        if (!card) return;
+        const table = card.querySelector(".specs-table");
+        if (!table) return;
+
+        if (table.style.display === "" || table.style.display === "none") {
+          table.style.display = "table";
+          button.textContent = "إخفاء التفاصيل";
+          button.style.backgroundColor = "#dc3545";
+          button.setAttribute("aria-expanded", "true");
+        } else {
+          table.style.display = "none";
+          button.textContent = "عرض التفاصيل";
+          button.style.backgroundColor = "";
+          button.setAttribute("aria-expanded", "false");
+        }
+      }
+
+      // بناء واجهة (تشغيل عند تحميل الصفحة)
+      document.addEventListener("DOMContentLoaded", function () {
+        // تحميل السلة من التخزين المحلي
+        cart = JSON.parse(localStorage.getItem("cart")) || [];
+        updateCartDisplay();
+
+        // ربط زر فتح الفورم
+        const openBtn = document.getElementById("checkout-open-btn");
+        if (openBtn) openBtn.addEventListener("click", openCheckoutForm);
+
+        // إغلاق الميني كارت إذا ضغط المستخدم خارجه
+        document.addEventListener("click", function (e) {
+          const mini = document.getElementById("mini-cart");
+          const icon = document.querySelector(".cart-icon");
+          if (!mini || !icon) return;
+          if (!mini.contains(e.target) && !icon.contains(e.target)) {
+            mini.classList.remove("active");
+          }
+        });
+
+        // تحسين: دعم الضغط على زر التفاصيل الافتراضي (يسمح بالوصول عبر الكيبورد)
+        document.querySelectorAll(".btn-detail").forEach((btn) => {
+          btn.addEventListener("keydown", function (ev) {
+            if (ev.key === "Enter" || ev.key === " ") {
+              ev.preventDefault();
+              toggleDetails(btn);
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

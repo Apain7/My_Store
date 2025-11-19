@@ -1,0 +1,302 @@
+[{% load static %}
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة إدارة - متجر الإلكترونيات</title>
+  <link rel="stylesheet" href="{% static 'css/style_A.css' %}">
+</head>
+<body>
+  <div class="app">
+    <!-- الشريط الجانبي -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">إ</div>
+        <div>
+          <h1>لوحة إدارة المتجر</h1>
+          <div class="muted">إدارة اللابتوبات والموبايلات والإكسسوارات</div>
+        </div>
+      </div>
+
+      <nav>
+        <a class="nav-btn active" href="#">لوحة المعلومات</a>
+      </nav>
+
+      <div class="sidebar-footer"> • وضع المسؤول</div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="main">
+      <div class="topbar">
+        <div class="top-left">
+          <div class="search">
+            <input id="search" class="search-input" placeholder="ابحث عن منتج أو موديل..." />
+          </div>
+          <select id="filterCategory" class="filter-select">
+            <option value="all">الكل</option>
+            <option value="laptop">لابتوب</option>
+            <option value="mobile">موبايل</option>
+            <option value="accessory">اكسسوار</option>
+          </select>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="addProductBtn">إضافة منتج</button>
+        </div>
+      </div>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>قائمة المنتجات</h2>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>المنتج</th>
+              <th>الفئة</th>
+              <th>السعر</th>
+              <th> صورة المنتج </th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="productsTable">
+            {% for product in products %}
+            <tr data-category="{% if product.category == 'Laptop' %}laptop{% elif product.category == 'Mobile' %}mobile{% else %}accessory{% endif %}">
+                <td>{{ product.name }}</td>
+                <td>{{ product.category }}</td>
+                <td>{{ product.price }} $</td>
+                <td>
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width:50px; height:auto;">
+                {% else %}
+                    لا توجد صورة
+                {% endif %}
+                </td>
+                <td>
+                  <button class="btn small editBtn"
+        data-id="{{ product.id }}"
+        data-name="{{ product.name }}"
+        data-category="{{ product.category }}"
+        data-price="{{ product.price }}"
+        data-content="{{ product.content }}"
+        {% if product.image %}data-image="{{ product.image.url }}"{% endif %}>
+  تعديل
+</button>
+                  <a href="{% url 'delete_product' product.id %}" class="btn small red">حذف</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align:center; color:#777;">لا توجد منتجات حالياً</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <!-- قسم الطلبات -->
+        <section class="card">
+            <h2>الطلبات</h2>
+            <table>
+              <thead>
+                            <tr>
+                                <th>رقم الطلب</th>
+                                <th>اسم العميل</th>
+                                <th>الهاتف</th>
+                                <th>العنوان</th>
+                                <th>السعر النهائي</th>
+                                <th>الحالة</th>
+                                <th>التفاصيل</th>
+                                <th>إجراءات</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                          {% for order in orders %}
+                            <tr>
+                                <td>{{ order.id }}</td>
+                                <td>{{ order.customer_name }}</td>
+                                <td>{{ order.customer_phone }}</td>
+                                <td>{{ order.customer_address }}</td>
+
+                                <!-- السعر النهائي -->
+                                <td>{{ order.total_price }} $</td>
+
+                                <td>
+                                    <form action="{% url 'update_order' order.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <select name="status">
+                                            {% for key, value in status_choices %}
+                                            <option value="{{ key }}" {% if order.status == key %}selected{% endif %}>{{ value }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <button type="submit" class="btn small">تحديث</button>
+                                    </form>
+                                </td>
+
+                                <td>
+                                    <ul>
+                                        {% for item in order.items.all %}
+                                        <li>{{ item.product_name }} - {{ item.quantity }} × {{ item.price }}$</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+
+                                <td>
+                                    <a href="{% url 'delete_order' order.id %}" class="btn small red">حذف</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                    </tbody>
+            </table>
+        </section>
+      </main>
+
+  <!-- نافذة إضافة منتج -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <h3>إضافة او تعديل منتج </h3>
+      <form id="productForm" action="{% url 'add_product' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-row">
+            <div class="col">
+                <label>اسم المنتج</label>
+                <input id="pName" name="name" placeholder="مثال: iPhone 15 Pro" required />
+            </div>
+            <div class="col">
+                <label>الفئة</label>
+                <select id="pCategory" name="category">
+                  <option value="Laptop">لابتوب</option>
+                  <option value="Mobile">موبايل</option>
+                  <option value="Accessories">اكسسوار</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="col">
+                <label>السعر ($)</label>
+                <input id="pPrice" name="price" type="number" step="0.01" min="0" required />
+            </div>
+        </div>
+
+        <label>الوصف</label>
+        <textarea id="pDesc" name="content" placeholder="تفاصيل عن المنتج..." required></textarea>
+
+        <div class="form-row">
+            <div class="col">
+                <label>رفع صورة</label>
+                <input id="pImage" name="image" type="file" accept="image/*" />
+            </div>
+            <div class="col">
+                <label>معاينة</label>
+                <div id="imgPreview" class="image-preview">لا توجد صورة</div>
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn ghost" id="cancelModal">إلغاء</button>
+            <button type="submit" class="btn">حفظ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script>
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const addProductBtn = document.getElementById('addProductBtn');
+    const cancelModal = document.getElementById('cancelModal');
+    const productForm = document.getElementById('productForm');
+    const productsTable = document.getElementById('productsTable');
+    const imgPreview = document.getElementById('imgPreview');
+    const searchInput = document.getElementById('search');
+    const filterCategory = document.getElementById('filterCategory');
+    const pImage = document.getElementById('pImage');
+    let editingProductId = null;
+
+    // فتح مودال إضافة منتج
+    addProductBtn.addEventListener('click', () => {
+        editingProductId = null;
+        productForm.reset();
+        imgPreview.innerHTML = "لا توجد صورة";
+        productForm.action = "{% url 'add_product' %}";
+        modalBackdrop.classList.add('show');
+    });
+
+    // إغلاق المودال
+    cancelModal.addEventListener('click', () => modalBackdrop.classList.remove('show'));
+
+    // معاينة الصورة
+    pImage.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) { imgPreview.innerHTML = 'لا توجد صورة'; return; }
+        const reader = new FileReader();
+        reader.onload = ev => imgPreview.innerHTML =
+            `<img src="${ev.target.result}" style="max-width:100%;height:100%;object-fit:cover;border-radius:10px;" />`;
+        reader.readAsDataURL(file);
+    });
+
+    /* -------------------------------
+       1) فلترة + بحث
+    --------------------------------*/
+    function filterProducts() {
+      const filter = filterCategory.value;
+      const searchTerm = searchInput.value.toLowerCase();
+      const rows = productsTable.getElementsByTagName('tr');
+
+      for (let row of rows) {
+        const nameCell = row.querySelector('td:nth-child(1)');
+    const categoryAttr = row.getAttribute('data-category');
+        if (!nameCell || !categoryAttr) continue;
+
+        const name = nameCell.textContent.toLowerCase();
+        const matchesCategory = filter === 'all' || filter === categoryAttr;
+        const matchesSearch = name.includes(searchTerm);
+
+        row.style.display = matchesCategory && matchesSearch ? '' : 'none';
+      }
+    }
+
+    searchInput.addEventListener('input', filterProducts);
+    filterCategory.addEventListener('change', filterProducts);
+
+
+    /* -------------------------------
+       2) تعديل منتج من المودال
+    --------------------------------*/
+    const editButtons = document.querySelectorAll('.editBtn');
+
+editButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+
+    editingProductId = btn.dataset.id;
+
+    // ملء قيم النموذج
+    document.getElementById('pName').value = btn.dataset.name;
+    document.getElementById('pCategory').value = btn.dataset.category;
+    document.getElementById('pPrice').value = btn.dataset.price;
+    document.getElementById('pDesc').value = btn.dataset.content || '';
+
+    if (btn.dataset.image) {
+      imgPreview.innerHTML = `<img src="${btn.dataset.image}" style="max-width:100%;height:100%;object-fit:cover;border-radius:10px;" />`;
+    } else {
+      imgPreview.innerHTML = 'لا توجد صورة';
+    }
+
+    // تغيير مسار الفورم
+    productForm.action = `/products/edit/${editingProductId}/`;
+
+    // فتح المودال
+    modalBackdrop.classList.add('show');
+  });
+});
+</script>
+
+  </body>
+</html>
+]

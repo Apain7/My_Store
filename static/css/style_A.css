@@ -1,0 +1,255 @@
+/* =============================
+   style.css - تصميم احترافي للوحة الإدارة
+   ============================= */
+
+:root {
+  --bg: #f7f8fa;
+  --primary: #0077ff;
+  --primary-dark: #005fd1;
+  --text: #222;
+  --muted: #888;
+  --radius: 10px;
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ========== الشريط الجانبي ========== */
+.sidebar {
+  width: 270px;
+  background: #fff;
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand .logo {
+  background: var(--primary);
+  color: #fff;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  gap: .7rem;
+  margin-top: 2rem;
+}
+
+.nav-btn {
+  padding: .7rem 1rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--text);
+  transition: background .2s;
+}
+
+.nav-btn:hover, .nav-btn.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.sidebar-footer {
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+/* ========== المحتوى الرئيسي ========== */
+.main {
+  flex: 1;
+  padding: 2rem;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.top-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  background: #f1f3f6;
+  padding: .5rem 1rem;
+  border-radius: var(--radius);
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+.filter-select {
+  border: 1px solid #ddd;
+  border-radius: var(--radius);
+  padding: .4rem .6rem;
+}
+
+.actions .btn {
+  margin-right: .5rem;
+}
+
+/* ========== البطاقات ========== */
+.card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 1rem 1.5rem;
+  margin-top: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.stat {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* ========== جدول المنتجات ========== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: .75rem 1rem;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+th {
+  background: #f9f9f9;
+  font-weight: 600;
+}
+
+/* ========== الأزرار ========== */
+.btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: .6rem 1.2rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.btn:hover {
+  background: var(--primary-dark);
+}
+
+.btn.ghost {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+.btn.ghost:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* ========== النافذة المنبثقة ========== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  width: 500px;
+  max-width: 90%;
+  box-shadow: var(--shadow);
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.col {
+  flex: 1;
+}
+
+.image-preview {
+  background: #f3f3f3;
+  border: 1px dashed #ccc;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .7rem;
+}
+
+.show {
+  display: flex !important;
+}

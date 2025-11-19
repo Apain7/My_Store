@@ -1,0 +1,73 @@
+/* style.css */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    direction: rtl; /* لدعم اللغة العربية */
+}
+
+body {
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+/* شريط التنقل (Navbar) */
+.navbar {
+    background-color: #007bff; /* أزرق جذاب */
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo a {
+    color: white;
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    margin-right: 20px;
+    padding: 5px 10px;
+    transition: background-color 0.3s;
+}
+
+.nav-links a:hover {
+    background-color: #0056b3;
+    border-radius: 5px;
+}
+
+/* التذييل (Footer) */
+.footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+    position: relative; /* لضمان ظهوره في الأسفل */
+    bottom: 0;
+    width: 100%;
+    margin-top: 40px;
+}
+
+/* الأزرار العامة */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin-top: 10px;
+    background-color: #28a745; /* أخضر */
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #1e7e34;
+}

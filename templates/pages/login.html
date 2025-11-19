@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body { font-family: Arial; background-color: #007bff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .login-container { background: white; padding: 30px; border-radius: 10px; width: 400px; text-align: center; }
+        h2 { margin-bottom: 20px; color: #333; }
+        .input-group { margin-bottom: 15px; text-align: right; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; text-align: right; }
+        .btn { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .btn:hover { background-color: #0056b3; }
+        .messages { margin-bottom: 15px; }
+        .messages li { list-style: none; color: red; margin-bottom: 5px; }
+        .messages li.success { color: green; }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>تسجيل الدخول</h2>
+
+<div class="messages">
+    {% if messages %}
+        <ul>
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+
+<form method="POST" action="">
+    {% csrf_token %}
+    <div class="input-group">
+        <label>اسم المستخدم</label>
+        <input type="text" id="username" name="username" placeholder="أدخل اسم المستخدم" required>
+    </div>
+
+    <div class="input-group">
+        <label>كلمة المرور</label>
+        <input type="password" id="password" name="password" placeholder="أدخل كلمة المرور" required>
+    </div>
+
+    <button type="submit" class="btn">تسجيل الدخول</button>
+</form>
+
+    <p style="margin-top: 15px;">
+        ليس لديك حساب؟ <a href="{% url 'register' %}" style="color: #007bff;">إنشاء حساب جديد</a>
+    </p>
+</div>
+
+<script>
+const loginForm = document.getElementById('loginForm');
+const errorDiv = document.getElementById('errorMessages');
+
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorDiv.innerHTML = '';
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    const response = await fetch("{% url 'token_obtain_pair' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ username, password })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+        localStorage.setItem('access', data.access);
+        localStorage.setItem('refresh', data.refresh);
+
+        // توجه حسب نوع المستخدم
+        const isAdmin = username.toLowerCase() === 'admin@gmail.com';
+        if (isAdmin) {
+            window.location.href = "{% url 'control' %}";
+        } else {
+            window.location.href = "{% url 'home' %}";
+        }
+
+    } else {
+        let messages = '';
+        if (data.detail) {
+            messages += `<li>${data.detail}</li>`;
+        } else {
+            for (const key in data) {
+                messages += `<li>${key}: ${data[key]}</li>`;
+            }
+        }
+        errorDiv.innerHTML = `<ul>${messages}</ul>`;
+    }
+});
+</script>
+
+</body>
+</html>
